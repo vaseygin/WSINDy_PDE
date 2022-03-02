@@ -18,7 +18,7 @@ close all;
 pde_num = 1;
 pde_names = {'burgers.mat','KdV.mat','KS.mat','NLS.mat',...
              'Sine_Gordon.mat','rxn_diff.mat','Nav_Stokes.mat',...
-             'porous.mat'};
+             'SG_exact.mat'};
 load(['datasets/',pde_names{pde_num}])
 
 U_obs = U_exact;

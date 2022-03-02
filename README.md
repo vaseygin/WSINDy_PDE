@@ -1,3 +1,6 @@
+#### Forked from original: https://github.com/dm973/WSINDy_PDE
+#### Making some documentation updates
+
 # WSINDy_PDE: algorithm for identification of PDE systems using the weak form of the dynamics
 
 Use wsindy_pde_script.m to recreate results in paper (https://arxiv.org/abs/2007.02848).

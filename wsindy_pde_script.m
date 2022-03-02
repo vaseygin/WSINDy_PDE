@@ -47,8 +47,10 @@ coarsen_data = [ones(dim,2) dims'];
 %%% coarsen_data(:,2) = 2; coarsens spatiotemporal grid by factor of 2 in each coordinate
 
 [xs_obs,U_obs] = subsamp(xs_obs,U_obs,coarsen_data,dims);
-% Get updates dimensions of observed data
+% Get updated dimensions of observed data
 dims = cellfun(@(x) length(x), xs_obs);
+
+load_dataspace(['datasets/',pde_names{pde_num}], xs_obs)
 
 %% Add noise
 
@@ -67,8 +69,12 @@ rng(rng_seed);
 
 %---------------- weak discretization
 
+% THESE (provided by .mat) GET OVERWRITTEN BY findcorners
 % m_x = min(10,floor((length(xs_obs{1})-1)/2));
 % m_t = min(10,floor((length(xs_obs{end})-1)/2));
+
+% These are the default values enforced in load_dataspace
+
 % s_x = max(floor(length(xs_obs{1})/25),1);
 % s_t = max(floor(length(xs_obs{end})/25),1);
 % phi_class = 1;
@@ -77,6 +83,8 @@ rng(rng_seed);
 % toggle_scale = 2;
 
 %---------------- model library
+
+% These are the default values enforced in load_dataspace
 
 % max_dx = 6;
 % max_dt = 1;
@@ -88,11 +96,14 @@ rng(rng_seed);
 % custom_add = [];
 % custom_remove = [];
 
+return
+
 %---------------- find test function hyperparams using Fourier spectrum of U
-disp(tauhat)
+disp("Tauhat:" + tauhat)
 if tauhat > 0
     tauhat_inds = 1:n;
-    [m_x,m_t,p_x,p_t,sig_est,corners_all] = findcorners(U_obs(tauhat_inds),xs_obs,tau,tauhat,max_dx,max_dt,phi_class);
+    [m_x,m_t,p_x,p_t,sig_est,corners_all] = findcorners(...
+        U_obs(tauhat_inds),xs_obs,tau,tauhat,max_dx,max_dt,phi_class);
     tols = [-p_x -p_t];
 else
     tols = [tau tau];
@@ -100,9 +111,10 @@ end
 
 %% Build Library
 
-[axi,tags_pde,lib_list,pdx_list,lhs_ind,Cfs_x,Cfs_t,dx,dt,p_x,p_t,sub_inds,scales,M_full,Theta_pdx] = wsindy_pde_fun(U_obs,xs,true_nz_weights,...
-    lhs,max_dx,max_dt,polys,trigs,custom_add,custom_remove,use_all_dt,use_cross_dx,...
-    toggle_scale,m_x,m_t,s_x,s_t,tols,phi_class);
+[axi,tags_pde,lib_list,pdx_list,lhs_ind,Cfs_x,Cfs_t,dx,dt,p_x,p_t,...
+ sub_inds,scales,M_full,Theta_pdx] = wsindy_pde_fun(U_obs,xs,true_nz_weights,...
+        lhs,max_dx,max_dt,polys,trigs,custom_add,custom_remove,use_all_dt,use_cross_dx,...
+        toggle_scale,m_x,m_t,s_x,s_t,tols,phi_class);
 
 %% Solve Sparse Regression Problem
 
@@ -169,4 +181,6 @@ if ~isempty(lossvals) && toggle_plot_loss
     xticklb = num2str(log10(xtick)');
     xticklabels(strcat('$10^{',xticklb(:,1:min(4,end)),'}$'))
 end
+
+
 

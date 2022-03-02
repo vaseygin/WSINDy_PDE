@@ -10,7 +10,7 @@ function [U_obs,noise,snr,sigma] = gen_noise(U_exact,sigma_NR,noise_dist,noise_a
 %
 % :returns: U_obs cell array with new data with added noise
 % :returns: noise cell array of noise added to original U_exact
-% :returns: snr resulting signal-to-noise ratio
+% :returns: snr resulting signal-to-noise ratio of each variable
 % :returns: sigma variance of nosie SHOULD THIS BE A CELL ARRAY?
 
     n = length(U_exact);

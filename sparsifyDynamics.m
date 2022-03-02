@@ -1,4 +1,4 @@
-function [Xi,its,thrs_EL] = sparsifyDynamics(Theta,dXdt,lambda,gamma,M)
+function [Xi,its,thrs_EL] = sparsifyDynamics(Theta,dXdt,lambda,gamma,M,maxits)
 % Copyright 2015, All Rights Reserved
 % Code by Steven L. Brunton
 % For Paper, "Discovering Governing Equations from Data: 
@@ -13,6 +13,10 @@ function [Xi,its,thrs_EL] = sparsifyDynamics(Theta,dXdt,lambda,gamma,M)
 n = min(size(dXdt));
 nn = size(Theta,2);
 
+if ~exist('maxits','var')
+    maxits= nn;
+end
+
 if  gamma ~= 0
     Theta = [Theta;gamma*eye(nn)];
     dXdt = [dXdt;zeros(nn,n)];
@@ -24,7 +28,7 @@ if ~isempty(M)
 end
 
 if isempty(M)
-    thrs_EL = lambda;
+    thrs_EL = [];
 else
     bnds = norm(dXdt)./vecnorm(Theta)'.*M; 
     LBs = lambda*max(1,bnds);
@@ -33,11 +37,11 @@ else
 end
 
 smallinds = 0*Xi;
-for j=1:nn
+its = 0;
+while its < maxits
     if ~isempty(M)
         smallinds_new = or(abs(Xi)<LBs,abs(Xi)>UBs);
-        if all(smallinds_new(:)==smallinds(:))
-            its = j;
+        if or(length(find(smallinds_new))==nn,all(smallinds_new(:)==smallinds(:)))
             return
         else
             smallinds = smallinds_new;
@@ -48,8 +52,7 @@ for j=1:nn
         end
     else
         smallinds_new = (abs(Xi)<lambda);
-        if all(smallinds_new(:)==smallinds(:))
-            its = j;
+        if or(length(find(smallinds_new))==nn,all(smallinds_new(:)==smallinds(:)))
             return
         else
             smallinds = smallinds_new;
@@ -60,8 +63,8 @@ for j=1:nn
             end
         end
     end
+    its = its + 1;
 end
-its = nn;
 end
 
 %    bnds = norm(dXdt_reg).^2./abs(dXdt_reg'*Theta_reg)'.*M; 

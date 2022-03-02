@@ -7,7 +7,7 @@
 %%%%%%%%%%%% For Paper, "Weak SINDy for Partial Differential Equations"
 %%%%%%%%%%%% by D. A. Messenger and D. M. Bortz
 
-function Theta_pdx = get_lib_columns(n,lib_list,U_obs,Cfs_x,Cfs_t,supp_phi_x,supp_phi_t,dx,dt,sub_inds,dim,scales)
+function Theta_pdx = get_lib_columns(n,lib_list,U_obs,Cfs_x,Cfs_t,m_x,m_t,dx,dt,sub_inds,dim,scales)
 
 Ns = size(U_obs{1});
 
@@ -18,11 +18,11 @@ end
 Cfs_ffts = cell(dim,1);
 [mm,nn] = size(Cfs_x);
 for k=1:dim-1
-    Cfs_ffts{k} = [zeros(mm,Ns(k)-nn) (supp_phi_x*dx*scales(n+k)).^(-(0:mm-1)').*Cfs_x/nn];
+    Cfs_ffts{k} = [zeros(mm,Ns(k)-nn) (m_x*dx*scales(n+k)).^(-(0:mm-1)').*Cfs_x];
     Cfs_ffts{k} = fft(Cfs_ffts{k},[],2);
 end
 [mm,nn] = size(Cfs_t);
-Cfs_ffts{dim} = [zeros(mm,Ns(dim)-nn) (supp_phi_t*dt*scales(n+dim)).^(-(0:mm-1)').*Cfs_t/nn];
+Cfs_ffts{dim} = [zeros(mm,Ns(dim)-nn) (m_t*dt*scales(n+dim)).^(-(0:mm-1)').*Cfs_t];
 Cfs_ffts{dim} = fft(Cfs_ffts{dim},[],2);
     
 Theta_pdx = [];

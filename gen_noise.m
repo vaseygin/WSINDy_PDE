@@ -1,24 +1,17 @@
-%> @file  gen_noise.m
-%> @brief Adding noise to data
-
-% ======================================================================
-%> @brief  Add noise to data per variable in U_exact
-%>
-%> Add noise to data per variable in U_exact
-%>
-%> @param U_exact Observed data as cell array with shape (1,n) for data with n state variables
-%> @param sigma_NR desired signal-to-noise ratio
-%> @param noise_dist Either 0 or 1. 0 = white noise, 1 = uniform
-%> @param noise_alg Either 0 or 1. 0 = additive noise, 1 = multiplicative noise 
-%> @param rng_seed seed for the MATLAB random number generator
-%> @param toggle_disp if true print info about noise
-%>
-%> @retval U_obs cell array with new data with added noise
-%> @retval noise cell array of noise added to original U_exact
-%> @retval snr resulting signal-to-noise ratio
-%> @retval sigma variance of nosie SHOULD THIS BE A CELL ARRAY?
-% ======================================================================
 function [U_obs,noise,snr,sigma] = gen_noise(U_exact,sigma_NR,noise_dist,noise_alg,rng_seed,toggle_disp)
+% Add noise to data per variable in U_exact
+%
+% :param U_exact: Observed data as cell array with shape (1,n) for data with n state variables
+% :param sigma_NR: desired signal-to-noise ratio
+% :param noise_dist: Either 0 or 1. 0 = white noise, 1 = uniform
+% :param noise_alg: Either 0 or 1. 0 = additive noise, 1 = multiplicative noise 
+% :param rng_seed: seed for the MATLAB random number generator
+% :param toggle_disp: if true print info about noise
+%
+% :returns: U_obs cell array with new data with added noise
+% :returns: noise cell array of noise added to original U_exact
+% :returns: snr resulting signal-to-noise ratio
+% :returns: sigma variance of nosie SHOULD THIS BE A CELL ARRAY?
 
     n = length(U_exact);
     rng(rng_seed);
@@ -47,20 +40,18 @@ function [U_obs,noise,snr,sigma] = gen_noise(U_exact,sigma_NR,noise_dist,noise_a
 
 end
 
-%> ======================================================================
-%> @brief Add noise to data in given variable U_exact
-%>
-%> @param U_exact Observed data of single variable in time
-%> @param stdev standard deviation of noise
-%> @param noise_dist Either 0 or 1. 0 = white noise, 1 = uniform
-%> @param noise_alg Either 0 or 1. 0 = additive noise, 1 = multiplicative noise
-%>
-%> @retval U U_exact with noise
-%> @retval noise noise added to U_exact
-%> @retval snr resulting signal-to-noise ratio
-%> @retval sigma variance of noise
-%> ======================================================================
 function [U,noise,snr,sigma] = add_noise(U_exact,stdv,sigma_NR,noise_dist,noise_alg)
+% Add noise to data in given variable U_exact
+%
+% :param U_exact: Observed data of single variable in time
+% :param stdev: standard deviation of noise
+% :param noise_dist: Either 0 or 1. 0 = white noise, 1 = uniform
+% :param noise_alg: Either 0 or 1. 0 = additive noise, 1 = multiplicative noise
+%
+% :returns: U U_exact with noise
+% :returns: noise noise added to U_exact
+% :returns: snr resulting signal-to-noise ratio
+% :returns: sigma variance of noise
 
     dims = size(U_exact);
     if noise_dist == 0 % white noise

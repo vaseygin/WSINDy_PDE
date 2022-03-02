@@ -21,7 +21,13 @@ function [tags_pde,lib_list] = build_str_tags(lib_list,dim,n)
             end
 
             if isreal(tags)
-                tags_pde{ind} = ['u^{', strrep(num2str(tags(1:n)),'  ',','),'}_{',str_pdx,'}'];
+                str_temp = '';
+                for nn=1:n-1
+                    str_temp = strcat(str_temp,strcat(strrep(num2str(tags(nn)),' ',''),','));
+                end
+                str_temp = strcat(str_temp,strrep(num2str(tags(n)),' ',''));
+                tags_pde{ind} = ['u^{',str_temp,'}_{',str_pdx,'}'];
+%                tags_pde{ind} = ['u^{', strrep(num2str(tags(1:n)),'  ',','),'}_{',str_pdx,'}'];
                 ind = ind+1;
             else
                 ind_symb = imag(tags(1:n));

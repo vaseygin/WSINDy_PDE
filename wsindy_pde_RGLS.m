@@ -6,7 +6,7 @@
 %%%%%%%%%%%% For Paper, "Weak SINDy for Partial Differential Equations"
 %%%%%%%%%%%% by D. A. Messenger and D. M. Bortz
 
-function [W,G,b,resid,dW,its_all,thrs_EL,M] = wsindy_pde_RGLS(lambda,gamma,Theta_pdx,lhs_ind,axi,M_scale)
+function [W,G,b,resid,dW,its_all,thrs_EL,M] = wsindy_pde_RGLS(lambda,gamma,Theta_pdx,lhs_ind,axi,M_scale,maxits)
 
 num_eq = length(lhs_ind);
 [K,m] = size(Theta_pdx);
@@ -26,10 +26,10 @@ M = [];
 for k=1:num_eq
     b(:,k) = Theta_pdx(:,lhs_ind(k));
     if isempty(M_scale)
-        [W(:,k),its,thrs_EL] = sparsifyDynamics(G, b(:,k), lambda, gamma, M);
+        [W(:,k),its,thrs_EL] = sparsifyDynamics(G, b(:,k), lambda, gamma, M,maxits);
     else
         M = [M M_scale(~ismember(1:m,lhs_ind))/M_scale(lhs_ind(k))];
-        [W(:,k),its,thrs_EL] = sparsifyDynamics(G, b(:,k), lambda, gamma, M(:,end));
+        [W(:,k),its,thrs_EL] = sparsifyDynamics(G, b(:,k), lambda, gamma, M(:,end),maxits);
     end
     if ~isempty(axi)
         dW{k+1} = W(:,k)-axi(:,k);

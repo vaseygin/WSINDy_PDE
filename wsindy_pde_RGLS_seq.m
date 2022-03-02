@@ -1,4 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%% WSINDy_PDE: solve regularized LSP with sequential thresh.
 %%%%%%%%%%%% 
 %%%%%%%%%%%% Copyright 2020, All Rights Reserved
@@ -6,7 +6,7 @@
 %%%%%%%%%%%% For Paper, "Weak SINDy for Partial Differential Equations"
 %%%%%%%%%%%% by D. A. Messenger and D. M. Bortz
 
-function [W,G,b,resid,dW,its_all,rnorms,M] = wsindy_pde_RGLS_seq(lambdas,gamma,Theta_pdx,lhs_ind,axi,M_scale)
+function [W,G,b,resid,dW,its_all,lossvals,thrs_EL,M] = wsindy_pde_RGLS_seq(lambdas,gamma,Theta_pdx,lhs_ind,axi,M_scale,maxits)
 
 num_eq = length(lhs_ind);
 [K,m] = size(Theta_pdx);
@@ -22,7 +22,13 @@ GW_ls = norm(G*W_ls);
 
 proj_cost = [];
 overfit_cost = [];
-rnorms = [];
+lossvals = [];
+
+if isempty(lambdas)
+    lam_max = max(max(abs(G'*b),[],2)./vecnorm(G).^2');
+    lam_min = min(vecnorm(G*W_ls))/size(G,2)/max(vecnorm(G));
+    lambdas = 10.^linspace(log10(lam_min), log10(lam_max),50);
+end
 
 alpha = 1/2; 
 W = zeros(m-num_eq,num_eq);
@@ -31,21 +37,20 @@ for l=1:length(lambdas)
     M = [];
     for k=1:num_eq
         if isempty(M_scale)
-            M = [M M_scale(~ismember(1:m,lhs_ind))/M_scale(lhs_ind(k))];
-            [W(:,k),~,~] = sparsifyDynamics(G, b(:,k), lambda, gamma, M(:,end));
+            [W(:,k),~,~] = sparsifyDynamics(G, b(:,k), lambda, gamma, M,maxits);
         else
-            M = M_scale(~ismember(1:m,lhs_ind))/M_scale(lhs_ind(k));
-            [W(:,k),~,~] = sparsifyDynamics(G, b(:,k), lambda, gamma, M);
-            W(:,k) = W(:,k)./M;
+            M = [M M_scale(~ismember(1:m,lhs_ind))/M_scale(lhs_ind(k))];
+            [W(:,k),~,~] = sparsifyDynamics(G, b(:,k), lambda, gamma, M(:,end), maxits);
+            W(:,k) = W(:,k)./M(:,end);
         end
     end
     
     proj_cost = [proj_cost 2*alpha*norm(G*(W-W_ls))/GW_ls];
     overfit_cost = [overfit_cost 2*(1-alpha)*length(find(W~=0))/length(W(:))];
-    rnorms = [rnorms proj_cost(end) + overfit_cost(end)];
+    lossvals = [lossvals proj_cost(end) + overfit_cost(end)];
 end
 
-l = find(rnorms == min(rnorms),1);
+l = find(lossvals == min(lossvals),1);
 
 lambda = lambdas(l);
 its_all = zeros(num_eq,1);
@@ -59,9 +64,9 @@ M = [];
 for k=1:num_eq
     if ~isempty(M_scale)
         M = [M M_scale(~ismember(1:m,lhs_ind))/M_scale(lhs_ind(k))];
-        [W(:,k),its,~] = sparsifyDynamics(G, b(:,k), lambda, gamma, M(:,end));    
+        [W(:,k),its,thrs_EL] = sparsifyDynamics(G, b(:,k), lambda, gamma, M(:,end));    
     else
-        [W(:,k),its,~] = sparsifyDynamics(G, b(:,k), lambda, gamma, M);
+        [W(:,k),its,thrs_EL] = sparsifyDynamics(G, b(:,k), lambda, gamma, M);
     end
     if ~isempty(axi)
         dW{k+1} = W(:,k)-axi(:,k);
@@ -74,5 +79,5 @@ if ~isempty(M_scale)
 else
     resid = (b - G*W)/norm(b);
 end
-rnorms = [rnorms;lambdas; [[rnorms(1:l);lambdas(1:l)] zeros(2,length(lambdas)-l)]; proj_cost; overfit_cost];
+lossvals = [lossvals;lambdas; [[lossvals(1:l);lambdas(1:l)] zeros(2,length(lambdas)-l)]; proj_cost; overfit_cost];
 end

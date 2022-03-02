@@ -1,3 +1,18 @@
+% ======================================================================
+%> @brief  Add noise to data per variable in U_exact
+%>
+%> @param U_exact Observed data as cell array with shape (1,n) for data with n state variables
+%> @param sigma_NR desired signal-to-noise ratio
+%> @param noise_dist Either 0 or 1. 0 = white noise, 1 = uniform
+%> @param noise_alg Either 0 or 1. 0 = additive noise, 1 = multiplicative noise 
+%> @param rng_seed seed for the MATLAB random number generator
+%> @param toggle_disp if true print info about noise
+%>
+%> @retval U_obs cell array with new data with added noise
+%> @retval noise cell array of noise added to original U_exact
+%> @retval snr resulting signal-to-noise ratio
+%> @retval sigma variance of nosie SHOULD THIS BE A CELL ARRAY?
+% ======================================================================
 function [U_obs,noise,snr,sigma] = gen_noise(U_exact,sigma_NR,noise_dist,noise_alg,rng_seed,toggle_disp)
 
     n = length(U_exact);
@@ -8,6 +23,7 @@ function [U_obs,noise,snr,sigma] = gen_noise(U_exact,sigma_NR,noise_dist,noise_a
         stdvs = zeros(1,n);
         noise = cell(1,n);
         snr = zeros(1,n);
+        % Introduce noise per variable 
         for k=1:n
             stdvs(k) = rms(U_exact{k}(:))^2;
         end
@@ -26,6 +42,19 @@ function [U_obs,noise,snr,sigma] = gen_noise(U_exact,sigma_NR,noise_dist,noise_a
 
 end
 
+% ======================================================================
+%> @brief Add noise to data in given variable U_exact
+%>
+%> @param U_exact Observed data of single variable in time
+%> @param stdev standard deviation of noise
+%> @param noise_dist Either 0 or 1. 0 = white noise, 1 = uniform
+%> @param noise_alg Either 0 or 1. 0 = additive noise, 1 = multiplicative noise
+%>
+%> @retval U U_exact with noise
+%> @retval noise noise added to U_exact
+%> @retval snr resulting signal-to-noise ratio
+%> @retval sigma variance of noise
+% ======================================================================
 function [U,noise,snr,sigma] = add_noise(U_exact,stdv,sigma_NR,noise_dist,noise_alg)
 
     dims = size(U_exact);

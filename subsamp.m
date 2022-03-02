@@ -1,5 +1,10 @@
-% ======================================================================
+%> @file  subsamp.m
+%> @brief Subsampling data
+
+%> ======================================================================
 %> @brief Subsamples data U_obs and coordinates xs_obs according to coarsen_data
+%>
+%> Subsamples data U_obs and coordinates xs_obs according to coarsen_data
 %>
 %> @param xs_obs spatial locations of data as cell array of shape (1,D+1) so xs_obs{D} is grid points in last dimension D and xs_obs{D+1} is in time
 %> @param U_obs Observed data as cell array with shape (1,n) for data with n state variables
@@ -8,7 +13,7 @@
 %>
 %> @retval xs_obs coarsened spatial grid
 %> @retval U_obs coarsened data
-% ======================================================================
+%> ======================================================================
 function [xs_obs,U_obs] = subsamp(xs_obs,U_obs,coarsen_data,dims)
     if ~and(all(reshape(coarsen_data(:,1:2)==1,[],1)),...
             all(coarsen_data(:,end)==dims'))

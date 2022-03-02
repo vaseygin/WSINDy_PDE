@@ -1,5 +1,10 @@
+%> @file  gen_noise.m
+%> @brief Adding noise to data
+
 % ======================================================================
 %> @brief  Add noise to data per variable in U_exact
+%>
+%> Add noise to data per variable in U_exact
 %>
 %> @param U_exact Observed data as cell array with shape (1,n) for data with n state variables
 %> @param sigma_NR desired signal-to-noise ratio
@@ -42,7 +47,7 @@ function [U_obs,noise,snr,sigma] = gen_noise(U_exact,sigma_NR,noise_dist,noise_a
 
 end
 
-% ======================================================================
+%> ======================================================================
 %> @brief Add noise to data in given variable U_exact
 %>
 %> @param U_exact Observed data of single variable in time
@@ -54,7 +59,7 @@ end
 %> @retval noise noise added to U_exact
 %> @retval snr resulting signal-to-noise ratio
 %> @retval sigma variance of noise
-% ======================================================================
+%> ======================================================================
 function [U,noise,snr,sigma] = add_noise(U_exact,stdv,sigma_NR,noise_dist,noise_alg)
 
     dims = size(U_exact);
